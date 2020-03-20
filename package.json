@@ -1,0 +1,19 @@
+{
+  "name": "shop_api",
+  "version": "1.0.0",
+  "description": "node tutorials",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon Server.js"
+  },
+  "author": "Zalo Austine",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.9.5",
+    "morgan": "^1.9.1",
+    "nodemon": "^2.0.2"
+  }
+}
