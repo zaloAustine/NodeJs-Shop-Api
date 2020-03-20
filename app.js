@@ -6,11 +6,12 @@ const productRoutes = require('./api/routes/products')
 const orderRoutes = require('./api/routes/order')
 const mongoose = require("mongoose");
 
+//connection to mongoDB
 mongoose.connect('mongodb+srv://zalocoders:zalo@node-rest-shop-lq9xf.mongodb.net/test?retryWrites=true&w=majority',
 {useNewUrlParser : true});
 
 
-
+mongoose.Promise = global.Promise;
 
 
 
@@ -18,6 +19,7 @@ mongoose.connect('mongodb+srv://zalocoders:zalo@node-rest-shop-lq9xf.mongodb.net
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
+
 //adding header ..prevent cors errors
 app.use((req,res,next)=>{
     res.header("Access-Control-Allow-Origin","*");
@@ -31,10 +33,7 @@ app.use((req,res,next)=>{
 });
 
 
-
-
-
-
+//connecting the classes logic
 app.use('/products',productRoutes);
 app.use('/orders',orderRoutes);
 
