@@ -1,16 +1,34 @@
 const express = require('express');
 const router = express.Router(); 
+//calling the product model
 const Product = require('/home/zalo/Desktop/nodejs/ShopApi/models/product.js'); 
 const mongoose = require('mongoose');
-
+ObjectId = require('mongodb').ObjectID;
 
 router.get('/',(req,res,next)=>{
-
    Product.find()
+   //specify fields
+   .select("name price _id")
    .exec()
    .then(doc=>{
-    console.log(doc);
-    res.status(200).json(doc);
+
+    const response ={
+        count:doc.length,
+        products:doc.map(doc =>{
+                    //adding meta data
+            return {
+                name:doc.name,
+                price:doc.price,
+                _id:doc._id,
+                request:{
+                    type:'GET',
+                    url:'http://localhost:3000/products/'+doc._id
+                }
+            }
+        })
+    }
+
+    res.status(200).json(response);
 })
    .catch(err =>{
        console.log(err);
@@ -18,9 +36,13 @@ router.get('/',(req,res,next)=>{
    });
 });
 
+
+
+
+//post doesnt need execute
 router.post('/',(req,res,next)=>{
 
-  
+//creating new Object  
     const product = new Product({
         _id:new mongoose.Types.ObjectId(),
         name:req.body.name,
@@ -28,11 +50,19 @@ router.post('/',(req,res,next)=>{
     });
 
     product.save().then(result=>{
-        console.log(result);
 
         res.status(200).json({
-            message:"handling post",
-            createdProduct:product
+            message:"Created product Succesfully",
+            createdProduct:{
+                name:result.name,
+                price:result.price,
+                _id:result._id,
+                request:{
+                    type:'GET',
+                    url:'http://localhost:3000/products/'+result._id
+                }
+
+            }
         });
     
     }).catch(err => {Console.log(err);
@@ -45,12 +75,25 @@ router.post('/',(req,res,next)=>{
 });
 
 router.get('/:productId',(req,res,next)=>{
+    //getting id from request
 const id = req.params.productId;
-    Product.findById(id).exec()
+    Product.findById(id)
+    .select('name price _id')
+    .exec()
     .then(doc=>{
         if(doc){
-            console.log(doc);
-            res.status(200).json(doc);
+
+            res.status(200).json({
+                name:doc.name,
+                price:doc.price,
+                _id:doc._id,
+                decription:"Getting all products",
+                request:{
+                    type:'GET',
+                    url:'http://localhost:3000/products/'+doc._id}
+
+                });
+
         }else{
             res.status(404).json({message:"No valid message"});
 
@@ -64,30 +107,43 @@ const id = req.params.productId;
 
 });
 
-router.post('/',(req,res,next)=>{
 
+router.patch("/:productId", (req, res, next) => {
+    Product.updateOne({ _id: req.params.productId }, { $set: req.body })
+      .exec()
+      .then(doc => {
+        res.status(200).json({ 
 
-    res.status(200).json({
-        message:"handling post"
-    });
-});
+            name:doc.name,
+            price:doc.price,
+            _id:doc._id,
+            decription:"Updating a product",
+            request:{
+                type:'GET',
+                url:'http://localhost:3000/products/'+doc._id}
 
-router.patch('/:productId',(req,res,next)=>{
-const id = req.params.productId;
-
-res.status(200).json({
-    message:"Update Product",
-    id:id
-    });
-
-
-});
+        });
+      })
+      .catch(err => {
+        console.log(err);
+        error: err;
+      });
+  });
 
 router.delete('/:productId',(req,res,next)=>{
     const id = req.params.productId;
    Product.remove({_id:id}).exec()
-   .then(result => {
-       res.status(200).json(result);
+   .then(doc => {
+       res.status(200).json({
+        name:doc.name,
+        price:doc.price,
+        _id:doc._id,
+        decription:"Getting a product",
+        request:{
+            type:'GET',
+            url:'http://localhost:3000/products/'+doc._id}
+
+       });
    })
    .catch(err => {
        console.log(err);
@@ -95,5 +151,6 @@ router.delete('/:productId',(req,res,next)=>{
    });
     });
 
+    
 
 module.exports = router;

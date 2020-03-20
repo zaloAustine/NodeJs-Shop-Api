@@ -5,7 +5,7 @@ const productSchema = mongoose.Schema(
 
         _id:mongoose.Schema.Types.ObjectId,
         name:String,
-        price:Number
+        price:{type:Number,require:true}
     }   
     );
 
